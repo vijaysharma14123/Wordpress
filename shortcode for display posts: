@@ -1,0 +1,70 @@
+<?php 
+
+//shortcode for display posts with attributes
+
+function posts_display($atts) {
+
+	extract(shortcode_atts(array( // a few default values
+     //add your attributes here.
+	   //'parent_id' => '139',
+	), $atts));
+
+	ob_start();
+
+	$args = array(
+		'post_type' => 'post', 
+		'posts_per_page' => -1
+		//'post_parent' => $parent_id
+	);
+
+	$posts = new WP_Query($args);
+
+
+	if ($posts->have_posts()): ?>
+
+		
+
+		<?php
+
+		while ($posts->have_posts()):  $posts->the_post();
+
+            $thumURL = get_the_post_thumbnail_url($post->ID, 'large');
+            if ($thumURL == '') {
+            	$thumURL = get_site_url().'/wp-content/uploads/2018/10/6914793-tropical-beach-images.jpg';
+            }
+        ?>
+
+		<div>
+			<div class="pt-cv-content-item pt-cv-1-col">
+				<div class="pt-cv-ifield">
+						<a href="<?php echo get_the_permalink($post->ID); ?>" class="_self"><?php echo the_post_thumbnail(); ?></a>
+					<h4 class="pt-cv-title">
+						<a href="<?php echo get_the_permalink($post->ID); ?>" class="_self"><?php echo get_the_title($post->ID); ?></a>
+					</h4>
+					<div class="pt-cv-content"><?php echo substr(get_the_excerpt($post->ID), 0, 200); ?>
+						<br><a href="<?php echo get_the_permalink($post->ID); ?>" class="_self pt-cv-readmore btn btn-success" target="_self">Read More</a>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		
+       <?php
+
+		endwhile;
+	?>
+
+	</div>
+
+	<?php
+	endif;
+
+
+	$output = ob_get_contents();
+	ob_end_clean();
+	return $output;		
+
+}
+
+
+add_shortcode('display_posts','posts_display');
