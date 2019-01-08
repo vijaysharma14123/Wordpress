@@ -68,3 +68,35 @@ function mb_save_postdata( $post_id ) {
     update_post_meta($post_id,'products',$products);
 }
 
+
+
+Display field in your template using this code:
+
+<table name="repeater_data">
+
+          <?php
+    //get the saved meta as an array
+    $products = get_post_meta($post->ID,'products',false);
+    $c = 0;
+    ?>
+     <?php if($products){ ?>
+    <th>Product Name</th><th>Product Price</th>
+  <?php } ?>
+    <?php
+    if ( count( $products ) > 0 ) {
+        if(!empty($products)){
+            foreach( $products as $product_price ) {
+                foreach( $product_price as $price ) {
+                    if ( isset( $price['title'] ) || isset( $price['price'] ) ) {
+                        ?>
+                        <tr><td><?php echo $price['title'];?></td>
+                        <td><?php echo $price['price'];?></td></tr>
+
+                     <?php   
+                    }
+                }
+            }
+        }    
+    }
+    ?>
+  </table>
