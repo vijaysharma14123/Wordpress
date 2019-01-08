@@ -1,0 +1,70 @@
+//repeater field
+// write down in your function.php file ......
+
+add_action( 'add_meta_boxes', 'mb_add_custom_box' );
+
+add_action( 'save_post', 'mb_save_postdata' );
+function mb_add_custom_box() {
+    add_meta_box(
+        'mb_sectionid',
+        __( 'Latest Product Price', 'myplugin_textdomain' ),
+        'mb_inner_custom_box',
+        'post');
+}
+
+function mb_inner_custom_box() {
+    global $post;
+   
+    wp_nonce_field( plugin_basename( __FILE__ ), 'mbMeta_noncename' );
+    ?>
+    <div id="meta_inner">
+    <?php
+ 
+    $products = get_post_meta($post->ID,'products',false);
+    $c = 0;
+    if ( count( $products ) > 0 ) {
+        if(!empty($products)){
+            foreach( $products as $product_price ) {
+                foreach( $product_price as $price ) {
+                    if ( isset( $price['title'] ) || isset( $price['price'] ) ) {
+                        printf( '<p>product Title <input type="text" name="products[%1$s][title]" value="%2$s" /> -- Product Price : <input type="text" name="products[%1$s][price]" value="%3$s" /><span class="remove">%4$s</span></p>', $c, $price['title'], $price['price'], __( 'Remove Product' ) );
+                        $c = $c +1;
+                    }
+                }
+            }
+        }    
+    }
+    ?>
+<span id="here"></span>
+<span class="add"><?php _e('Add Products'); ?></span>
+<script>
+    var $ =jQuery.noConflict();
+    $(document).ready(function() {
+        var count = <?php echo $c; ?>;
+        $(".add").click(function() {
+            count = count + 1;
+            $('#here').append('<p> product Title <input type="text" name="products['+count+'][title]" value="" /> -- Product Price : <input type="text" name="products['+count+'][price]" value="" /><span class="remove">Remove product</span></p>' );
+            return false;
+        });
+        $(".remove").live('click', function() {
+            $(this).parent().remove();
+        });
+    });
+    </script>
+</div><?php
+}
+
+function mb_save_postdata( $post_id ) {
+  
+    if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) 
+        return;
+  
+    if ( !isset( $_POST['mbMeta_noncename'] ) )
+        return;
+    if ( !wp_verify_nonce( $_POST['mbMeta_noncename'], plugin_basename( __FILE__ ) ) )
+        return;
+  
+    $products = $_POST['products'];
+    update_post_meta($post_id,'products',$products);
+}
+
