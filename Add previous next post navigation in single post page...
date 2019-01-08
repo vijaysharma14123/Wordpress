@@ -1,0 +1,16 @@
+//write this code before end of while loop in your single post template:
+
+
+<?php
+                    //$previous_post = get_previous_post_link ($format = '&laquo; %link', $link = '%title', $in_same_term = true);
+                   // echo $previous_post;
+				    // $previous_post = get_previous_post();
+                    $next_post = get_next_post($in_same_term = true);
+				    $prev_post = get_previous_post($in_same_term = true);
+				    the_post_navigation( array(
+				    	'in_same_term' => true,
+                    	'next_text' => '<div class="meta-nav-links" aria-hidden="true">' . __( 'Next Article <i class="fa fa-arrow-right" aria-hidden="true"></i> ', '' ) . '</div> ' . (($next_post)
+                    	? get_the_post_thumbnail($next_post->ID,'full') : '' ).'<div class="post-title">%title</div>', 
+                     	'prev_text' => '<div class="meta-nav-links" aria-hidden="true">' . __( '<i class="fa fa-arrow-left" aria-hidden="true"></i> Previous Article', '' ) . '</div> ' . (($prev_post ) ? get_the_post_thumbnail($prev_post->ID,'full') : '') . '<div class="post-title">%title</div>', 
+                     ) );
+                    ?>		
