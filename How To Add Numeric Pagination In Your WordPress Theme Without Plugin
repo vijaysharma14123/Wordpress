@@ -1,0 +1,77 @@
+//just write the below function on your theme functions.php or your plugin’s main file.
+
+function kvcodes_pagination_fn($pages = '', $range = 2){  
+     $showitems = ($range * 2)+1;     // This is the items range, that we can pass it as parameter depending on your necessary. 
+
+     global $paged;  // Global variable to catch the page counts
+     if(empty($paged)) $paged = 1;
+
+     if($pages == '') {   // paged is not defined than its first page. just assign it first page.    
+         global $wp_query;
+         $pages = $wp_query->max_num_pages;
+         if(!$pages)
+            $pages = 1;
+     }   
+
+     if(1 != $pages) { //For other pages, make the pagination work on other page queries     
+         echo "<div class='kvc_pagination'>";
+         if($paged > 2 && $paged > $range+1 && $showitems < $pages) echo "<a href='".get_pagenum_link(1)."'>&laquo;</a>";
+         if($paged > 1 && $showitems < $pages) echo "<a href='".get_pagenum_link($paged - 1)."'>&lsaquo;</a>";
+
+         for ($i=1; $i <= $pages; $i++)    {
+             if (1 != $pages &&( !($i >= $paged+$range+1 || $i <= $paged-$range-1) || $pages <= $showitems ))   
+                 echo ($paged == $i)? "<span class='current'>".$i."</span>":"<a href='".get_pagenum_link($i)."' class='inactive' >".$i."</a>";
+         }
+
+         if ($paged < $pages && $showitems < $pages) echo "<a href='".get_pagenum_link($paged + 1)."'>&rsaquo;</a>";  
+         if ($paged < $pages-1 &&  $paged+$range-1 < $pages && $showitems < $pages) echo "<a href='".get_pagenum_link($pages)."'>&raquo;</a>";
+         echo "</div>\n";
+     }
+}
+
+//write down this after while loop:
+
+<?php 
+
+$custom_query = new WP_Query("post_type=receipes&author=kvcodes"); 
+while ($custom_query->have_posts()) : $custom_query->the_post(); 
+	//	Show loop content...
+endwhile; 
+
+kvcodes_pagination_fn($custom_query->max_num_pages);
+
+?>
+
+
+//write down this code on your stylesheet
+
+
+.kvc_pagination{
+clear:both;
+padding:20px 0;
+position:relative;
+font-size:11px;
+line-height:13px;
+}
+
+.kvc_pagination span, .kvc_pagination a {
+display:block;
+float:left;
+margin: 2px 2px 2px 0;
+padding:6px 9px 5px 9px;
+text-decoration:none;
+width:auto;
+color:#fff;
+background: #555;
+}
+
+.kvc_pagination a:hover{
+color:#fff;
+background: #3279BB;
+}
+
+.kvc_pagination .current{
+padding:6px 9px 5px 9px;
+background: #3279BB;
+color:#fff;
+}
