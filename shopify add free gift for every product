@@ -1,0 +1,50 @@
+Shopify.queue = [];
+
+Shopify.moveAlong = function() {
+  // If we still have requests in the queue, let's process the next one.
+  if (Shopify.queue.length) {
+    var request = Shopify.queue.shift();
+    // pass the properties into addItem as well
+    Shopify.addItem(request.variantId, request.quantity, Shopify.moveAlong);
+  }
+  // If the queue is empty, we will redirect to the cart page.
+  else {
+    document.location.href = '/checkout';
+  }
+};
+
+// Create a new Shopify.addItem function that takes the 'properties' parameter
+Shopify.addItem = function(id, qty, callback) {
+  var params = {
+    quantity: qty,
+    id: id
+  };
+  $.ajax({
+    type: 'POST',
+    url: '/cart/add.js',
+    dataType: 'json',
+    data: params,
+    success: function(){
+      if(typeof callback === 'function'){
+        callback();
+      }
+    },
+    error: function(){}
+  });
+}
+
+function push_to_queue(variantID, quantity) {
+  Shopify.queue.push({variantId: variantID,quantity: quantity});
+}
+
+$("form.product-form.product-form-product-template").submit(function(e){
+
+  var variantId 	= $('select#ProductSelect-product-template :selected').val();
+  var giftVariantId	= 21463281074261;
+  push_to_queue(variantId,1);
+  push_to_queue(giftVariantId,1);
+  Shopify.moveAlong();
+  
+  e.preventDefault(e);
+  
+});
