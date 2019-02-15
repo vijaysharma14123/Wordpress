@@ -48,3 +48,12 @@ $("form.product-form.product-form-product-template").submit(function(e){
   e.preventDefault(e);
   
 });
+
+
+add this code in teme.liquid
+
+{% if template contains 'product' %}
+  	{%if product.handle contains 'mhh-haloclip-extensions' or product.handle contains 'mhh170' %}
+  		{{ 'gift_product.js' | asset_url | script_tag }}
+  	{% endif %}
+  {% endif %}
