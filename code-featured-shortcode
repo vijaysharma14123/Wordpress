@@ -1,0 +1,76 @@
+<?php
+function featured_post($atts) {
+
+  extract(shortcode_atts(array(
+
+  ), $atts));
+
+  ob_start();
+  $args = array(
+    'post_type' => 'post', 
+    'post_status' => 'publish',
+    'posts_per_page' => 1,
+    'orderby' => 'date',
+    'meta_query' => array(
+    'relation' => 'AND',
+      array(
+        'key'  => 'cc_featured_post',
+        'value' => 1,
+        'compare' => '=',
+      )
+    )
+  );
+	$argss = array(
+    'post_type' => 'post', 
+    'post_status' => 'publish',
+    'posts_per_page' => 3,
+    'orderby' => 'date'
+  );
+  $posts = new WP_Query($args);
+  $postss = new WP_Query($argss);?>
+
+<?php if ($posts->have_posts()): ?>
+<?php while ($posts->have_posts()):  $posts->the_post(); ?>
+<div class="home-blog-post-area">
+		<div class="feaduered-img">
+			<?php the_post_thumbnail('full', array('class' => 'w-100 h-100')); ?>
+		</div>
+		<div class="container-fluid">
+			<div class="container">
+				<div class="row home-blog-list align-items-center">
+					<div class="col-xs-12 col-sm-5 col-lg-5 feaduered-post"> <span>Featured Article</span>
+						<h2><?php echo the_title(); ?></h2>
+						<p><?php echo the_content(); ?></p>	<a href="<?php echo get_the_permalink(); ?>">Continue reading</a>
+					</div>
+					<?php
+				  endwhile;
+				  endif;
+				  ?>
+					<div class="col-xs-12 col-sm-6 col-lg-6 right-list text-left ml-auto">
+						<?php if ($postss->have_posts()): ?>
+                        <?php while ($postss->have_posts()):  $postss->the_post(); ?>
+						<div class="row d-flex align-items-center inner">
+							<div class="col-xs-4 col-sm-4 col-lg-4">
+							<?php the_post_thumbnail('full', array('class' => 'mw-100 d-block')); ?>
+							</div>
+							<div class="col-xs-8 col-sm-8 col-lg-8">
+								<h3><?php echo the_title(); ?></h3>
+								<div class="cat-date-info"> <span>INDUSTRY INSIGHTS</span>  <span><?php echo                                              get_the_date('j F Y'); ?></span>
+								</div>
+							</div>
+						</div>
+						<?php
+				  endwhile;
+				  endif;
+				  ?>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>	
+	<?php
+  $output = ob_get_contents();
+  ob_end_clean();
+  return $output;		
+}
+add_shortcode('home-page-featured-post','featured_post');
