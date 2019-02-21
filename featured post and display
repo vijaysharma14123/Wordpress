@@ -40,4 +40,84 @@ update_post_meta($post_id, 'cc_featured_post', 0);
 
 
 
-//
+//<?php
+function featured_conversation($atts) {
+
+  extract(shortcode_atts(array(
+    'category_name'=> 'written',
+
+  ), $atts));
+
+  ob_start();
+  $args = array(
+    'post_type' => 'post', 
+    'post_status' => 'publish',
+    'posts_per_page' => 1,
+    'category_name' => $category_name,
+    'orderby' => 'date',
+    'meta_query' => array(
+    'relation' => 'AND',
+      array(
+        'key'  => 'cc_featured_post',
+        'value' => 1,
+        'compare' => '=',
+      )
+    )
+  );
+
+  $posts = new WP_Query($args);
+
+
+  if ($posts->have_posts()): ?>
+
+  <?php while ($posts->have_posts()):  $posts->the_post(); ?>
+  <div class="video-thumb-area">	
+    <div class="video-thumb">
+      <?php the_post_thumbnail('full', array('class' => 'img-fluid w-100')); ?>
+    </div>
+    <div class="video-info">
+      <div>
+        <span class="cat_tag">
+          <i class="<?php echo categoryIcons($category_name); ?>" aria-hidden="true">
+          </i> FEATURED <?php echo strtoupper(getCatName($category_name)); ?>
+        </span>
+      </div>
+     
+      <h2>
+	   <a href="<?php echo get_the_permalink(); ?>">
+        <?php echo get_the_title(); ?>
+		</a>
+      </h2>
+      <div class="post-date">
+    <?php if(in_category('conversations-with-john')) { ?>
+    <?php  echo (( get_field('published_at') != '' ) ? get_field('published_at') : 'Published ' ); ?>  <?php echo get_the_date('j F Y'); ?>
+    <?php } else if(in_category( array('written','what-were-reading'))) { ?>
+     <?php if(get_field('date_originally_posted',get_the_ID()) != '') { ?>
+     <?php $date = get_field('date_originally_posted', false, false);
+      $date = new DateTime($date); ?>
+     <?php echo $date->format("j M Y"); ?><?php  echo (( get_field('published_at') != '' ) ? ' | ' . get_field('published_at') : '' ); ?>
+    <?php } ?>
+    <?php } else { ?>
+    <?php  echo (( get_field('published_at') != '' ) ? get_field('published_at') : 'Published ' ); ?>  <?php echo get_the_date('j F Y'); ?>
+  <?php } ?>
+
+  </div>
+      <?php if ( get_field('youtube_video') == true ) { ?>
+      <a href="<?php echo get_the_permalink(); ?>"><div class="play-icon">
+        <i class="fa fa-play-circle" aria-hidden="true">
+        </i>PLAY VIDEO
+      </div></a>
+       <?php } ?>
+    </div>	
+  </div>
+  <?php
+  endwhile;
+  endif;
+  ?>
+
+<?php
+  $output = ob_get_contents();
+  ob_end_clean();
+  return $output;		
+}
+add_shortcode('home-page-featured-conversation','featured_conversation');
